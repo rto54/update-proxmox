@@ -24,6 +24,10 @@ Rendez-le exécutable :
 ```bash
 chmod +x /usr/local/bin/update-proxmox.sh
 ```
+Programmez le lancement auto avec contrab :
+
+crontab -e
+0 3 * * * /usr/local/bin/update-proxmox.sh
 
 ## ⚙️ Configuration
 
@@ -55,6 +59,15 @@ TELEGRAM_CHAT_ID="your_chat_id"
 - `curl`
 - Accès `root`
 - Proxmox VE (avec commandes `pct` et `qm` disponibles)
+
+## 📬 Configuration gmail
+
+Créer un mot de passe d’application (Gmail)
+Connectez-vous à https://myaccount.google.com
+Activez la validation en deux étapes
+Allez dans Sécurité > Mots de passe d’application
+Créez un mot de passe pour “Mail” et “Autre (nommez-le Proxmox)”
+Copiez le mot de passe généré (16 caractères)
 
 ## ✅ Utilisation
 
