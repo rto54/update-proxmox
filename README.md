@@ -26,7 +26,9 @@ chmod +x /usr/local/bin/update-proxmox.sh
 ```
 Programmez le lancement auto avec contrab :
 
+```bash
 crontab -e
+```
 0 3 * * * /usr/local/bin/update-proxmox.sh
 
 ## ⚙️ Configuration
