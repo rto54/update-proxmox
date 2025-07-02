@@ -3,7 +3,7 @@
 # Script : update-proxmox.sh
 # Objectif : Mettre à jour automatiquement le nœud Proxmox, les conteneurs LXC et les VMs.
 #            Envoie un rapport par email avec les logs en pièce jointe et une notification Telegram.
-# Auteur : Votre Nom
+# Auteur : rto54
 # Date : 2025-07-02
 # Dépendances : mailx, curl, Proxmox VE, accès root
 # Usage : sudo /usr/local/bin/update-proxmox.sh
