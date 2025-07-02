@@ -1,93 +1,101 @@
-# 🔄 update-proxmox.sh
+# 🛠️ Script Automatisé de Mise à Jour Proxmox : `update-proxmox.sh`
 
-Script Bash pour automatiser la mise à jour de votre nœud **Proxmox VE**, des **conteneurs LXC** et des **machines virtuelles (VMs)**. Il envoie également un **rapport par email** avec les logs en pièce jointe et une **notification Telegram**.
+## 🎯 Objectif
 
-## ✨ Fonctionnalités
+Ce script Bash permet de :
+- Mettre à jour le **nœud Proxmox VE**
+- Mettre à jour tous les **conteneurs LXC actifs** (avec gestion des exclus)
+- Simuler la mise à jour des **VMs** (à compléter avec SSH)
+- Envoyer un **rapport par email (s-nail)** et une **notification Telegram**
+- Journaliser toutes les actions dans un log dédié
 
-- Mise à jour du nœud Proxmox via `apt`
-- Mise à jour des conteneurs LXC (sauf ceux ignorés)
-- Support basique pour les VMs (simulation ou extension possible via SSH/agent)
-- Envoi d'un rapport par email avec les logs en pièce jointe
-- Notification Telegram avec résumé des mises à jour
-- Rotation automatique des logs (> 7 jours supprimés)
+---
 
-## 📁 Emplacement recommandé
+## ⚙️ Fonctionnalités
 
-Placez le script dans :
+- Mise à jour silencieuse avec `apt` (sans interaction)
+- Rotation automatique des logs (conservation 7 jours)
+- Détection automatique de la version de l’OS
+- Mise à jour conditionnelle des conteneurs
+- Simulation de traitement des VMs
+- Notification :
+  - 📧 par email (`s-nail` via SMTP)
+  - 📲 via Telegram (bot)
 
+---
+
+## ✅ Prérequis
+
+### Paquets nécessaires :
 ```bash
-/usr/local/bin/update-proxmox.sh
+sudo apt install s-nail curl jq sshpass netcat
 ```
 
-Rendez-le exécutable :
+### Accès :
+- Script à lancer en root (`sudo`)
+- Accès root ou autorisations suffisantes pour Proxmox (`pct`, `qm`, etc.)
+
+---
+
+## 🔐 Paramètres à configurer dans le script
 
 ```bash
-chmod +x /usr/local/bin/update-proxmox.sh
-```
-Programmez le lancement auto avec contrab :
-
-```bash
-crontab -e
-```
-
-```bash
-0 3 * * * /usr/local/bin/update-proxmox.sh
-```
-
-## ⚙️ Configuration
-
-Le script est à configurer dans la section suivante :
-
-```bash
-# Conteneurs à ignorer
-IGNORED_CONTAINERS=(210 105 108)
-
-# Répertoires des logs
-LOG_DIR="/var/log/proxmox-update"
-
-# SMTP pour envoi du mail
 SMTP_SERVER="smtp.gmail.com"
 SMTP_PORT=587
 SMTP_USER="votre.email@gmail.com"
 SMTP_PASS="le_mot_de_passe_d_application"
-EMAIL_TO="votre.email@gmail.com"
+EMAIL_TO="destinataire@email.com"
 EMAIL_FROM="votre.email@gmail.com"
 
-# Telegram
-TELEGRAM_TOKEN="your_telegram_bot_token"
-TELEGRAM_CHAT_ID="your_chat_id"
+TELEGRAM_TOKEN="123456789:ABC...XYZ"
+TELEGRAM_CHAT_ID="12345678"
+IGNORED_CONTAINERS=(210 105 108)
 ```
 
-## 📬 Dépendances
+---
 
-- `mailx`
-- `curl`
-- Accès `root`
-- Proxmox VE (avec commandes `pct` et `qm` disponibles)
+## 🕒 Automatisation (cron)
 
-## 📬 Configuration gmail
+Exécution chaque dimanche à 4h :
 
-Créer un mot de passe d’application (Gmail)
-Connectez-vous à https://myaccount.google.com
-Activez la validation en deux étapes
-Allez dans Sécurité > Mots de passe d’application
-Créez un mot de passe pour “Mail” et “Autre (nommez-le Proxmox)”
-Copiez le mot de passe généré (16 caractères)
+```cron
+0 4 * * 0 /usr/local/bin/update-proxmox.sh >> /var/log/proxmox-update/cron.log 2>&1
+```
 
-## ✅ Utilisation
+---
 
-Lancez simplement le script avec les privilèges root :
+## 🧪 Simulation VM
+
+La mise à jour des VMs est **actuellement simulée**. Tu peux étendre le script pour :
+- Se connecter via SSH avec `sshpass`
+- Lancer `apt update && upgrade` à distance
+
+---
+
+## 🪪 Exemple de sortie
+
+```text
+Résumé de la mise à jour Proxmox :
+- Version OS : Debian GNU/Linux 12 (bookworm)
+- Conteneurs mis à jour : 4
+- Conteneurs ignorés : 2
+- Conteneurs non démarrés : 1
+- VMs mises à jour (simulation) : 3
+```
+
+---
+
+## 📁 Emplacement recommandé
 
 ```bash
-sudo /usr/local/bin/update-proxmox.sh
+sudo cp update-proxmox.sh /usr/local/bin/update-proxmox.sh
+sudo chmod +x /usr/local/bin/update-proxmox.sh
 ```
 
-## 📌 Remarques
+---
 
-- Les VMs ne sont pas mises à jour automatiquement (simulé uniquement).
-- Pour ajouter une vraie mise à jour des VMs, vous pouvez intégrer un accès SSH à l’intérieur de la boucle `qm`.
+## 👤 Auteur
 
-## 🧑‍💻 Auteur
-
-- rto54
-
+- Auteur : rto54
+- Date : Juillet 2025
+- Licence : usage privé / libre
