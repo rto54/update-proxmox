@@ -29,7 +29,10 @@ Programmez le lancement auto avec contrab :
 ```bash
 crontab -e
 ```
+
+```bash
 0 3 * * * /usr/local/bin/update-proxmox.sh
+```
 
 ## ⚙️ Configuration
 
