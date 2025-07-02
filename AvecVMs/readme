@@ -1,57 +1,119 @@
-README - Script update-proxmox_VMs.sh
-=====================================
+# 🛠️ Script de Mise à Jour Proxmox : `update-proxmox.sh`
 
-📋 Description
---------------
-Ce script Bash permet de mettre à jour automatiquement :
-- Le nœud Proxmox VE
-- Les conteneurs LXC (sauf ceux explicitement ignorés)
-- Les machines virtuelles (VMs) via SSH
+## 📌 Objectif
 
-Il génère un rapport de mise à jour, l’envoie par email avec les logs en pièce jointe, et envoie également une notification Telegram.
+Ce script automatise la mise à jour :
+- Du **nœud Proxmox VE**
+- Des **conteneurs LXC**
+- Des **machines virtuelles (VMs)** via SSH
 
-⚙️ Prérequis
-------------
-- Proxmox VE avec accès root
-- Outils installés :
-  - mailx
-  - curl
-  - sshpass
-  - jq
-- Accès SSH root aux VMs
-- Un bot Telegram configuré
-- Un compte email SMTP (ex : Gmail)
+Il envoie ensuite un **rapport par email** (avec logs) et une **notification Telegram**.
 
-🧾 Installation
----------------
-1. Copier le script dans `/usr/local/bin/update-proxmox_VMs.sh`
-2. Rendre le script exécutable :
-   chmod +x /usr/local/bin/update-proxmox_VMs.sh
-3. Adapter les variables de configuration en haut du script :
-   - ROOT_USER, ROOT_PASS
-   - SMTP_* pour l’envoi d’email
-   - TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
-   - IGNORED_CONTAINERS pour exclure certains CTs
+---
 
-🚀 Utilisation
---------------
-Exécuter le script avec les droits root :
-sudo /usr/local/bin/update-proxmox_VMs.sh
+## ⚙️ Fonctionnalités
 
-📦 Fonctionnalités
-------------------
-- Mise à jour du système hôte (apt update && upgrade)
-- Mise à jour des conteneurs LXC actifs
-- Mise à jour des VMs via SSH (si IP détectée et port SSH ouvert)
-- Envoi d’un email avec le résumé et les logs
-- Notification Telegram avec le résumé
-- Rotation automatique des logs (suppression après 7 jours)
+- Mise à jour silencieuse du système (`apt update && apt upgrade`) sans interaction
+- Détection automatique des VMs et LXC actifs
+- Mise à jour via SSH des VMs (si IP accessible)
+- Rotation automatique des logs (7 jours)
+- Notification par :
+  - 📧 Email (via SMTP avec `s-nail`)
+  - 📲 Telegram (via bot API)
 
-📁 Logs
--------
-- Les logs sont stockés dans : /var/log/proxmox-update/update.log
-- Les anciens logs sont archivés dans : /var/log/proxmox-update/archive/
+---
 
-🛡️ Sécurité
------------
-- Le mot de passe root est stocké en clair dans le script. Il est fortement recommandé d’utiliser une méthode plus sécurisée (clé SSH, vault, etc.) en production.
+## ✅ Prérequis
+
+### Paquets nécessaires :
+```bash
+sudo apt install s-nail curl jq sshpass netcat
+```
+
+### Accès :
+- Root sur le nœud Proxmox
+- Accès root par mot de passe SSH à chaque VM
+
+---
+
+## 🔐 Configuration à adapter dans le script
+
+```bash
+ROOT_USER="root"
+ROOT_PASS="votre_mot_de_passe_root"
+SSH_PORT=22
+
+SMTP_SERVER="smtp.gmail.com"
+SMTP_USER="votre.email@gmail.com"
+SMTP_PASS="mot_de_passe_application"
+EMAIL_TO="votre.email@gmail.com"
+
+TELEGRAM_TOKEN="123456789:ABC...XYZ"
+TELEGRAM_CHAT_ID="12345678"
+```
+
+---
+
+## 📤 Exemple d'envoi d'email
+
+Le script utilise `s-nail` avec des options SMTP sécurisées.  
+Si ton système utilise `mailx` BSD, **tu dois installer `s-nail`**.
+
+```bash
+sudo apt install s-nail
+```
+
+---
+
+## 🕒 Planification avec `cron`
+
+Ajoute à la crontab (`sudo crontab -e`) pour une exécution hebdomadaire :
+
+```cron
+0 4 * * 0 /usr/local/bin/update-proxmox.sh >> /var/log/proxmox-update/cron.log 2>&1
+```
+
+---
+
+## 🔄 Résultat de sortie
+
+Le script génère un résumé :
+
+```
+Résumé de la mise à jour Proxmox :
+- Conteneurs mis à jour : 3
+- Conteneurs ignorés : 1
+- Conteneurs non démarrés : 2
+- VMs mises à jour : 4
+```
+
+Et envoie :
+- Un **email** avec le log en pièce jointe
+- Une **notification Telegram** contenant ce résumé
+
+---
+
+## 🛡️ Sécurité
+
+- Le mot de passe root est stocké en clair dans le script
+  - 🔒 Il est recommandé d'utiliser un `.env` ou un `vault`
+  - 🔐 Tu peux aussi migrer vers une **authentification par clé SSH**
+
+---
+
+## 📁 Emplacement recommandé
+
+```bash
+sudo cp update-proxmox.sh /usr/local/bin/update-proxmox.sh
+sudo chmod +x /usr/local/bin/update-proxmox.sh
+```
+
+---
+
+## 🧑‍💻 Auteur
+
+- Nom : RTO54
+- Date : Juillet 2025
+- Licence : Libre usage privé
+
+---
